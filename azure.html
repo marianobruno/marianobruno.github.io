@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Azure Devops - Work Itmes - REST Api</title>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>AZURE - APIS - WorkItmes</h1>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="panel panel-primary">
+            <div class="panel-heading">Requerimiento</div>
+                <div class="panel-body">
+                    <form>
+                        <div class="input-group">
+                        <span class="input-group-addon">Título</span>
+                            <input  type="text" required="required" class="form-control" id="titulo" name="titulo" placeholder="Título">
+                        </div>
+                        <br>
+                        <div class="input-group">
+                        <span class="input-group-addon">Descripción</span>
+                            <input id="descripcion" type="text" class="form-control" name="msg" placeholder="Descripción">
+                        </div>
+                        <br>
+                        <div class="form-group">
+                        <label for="sel1">Prioridad</label>
+                            <select class="form-control" id="sel1">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                            </select>
+                        </div>
+                        <br>
+                            <button type="button" class="btn btn-primary pull-right" onclick="send();">Crear</button>
+                            <button type="button" class="btn btn-primary pull-left" onclick="obtenerQuery('UserStory');">Obtener query</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6" id="panel-derecho">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Respuesta - <a style="color: lightyellow" href="https://dev.azure.com/marianobruno/DevopsProject/_workitems/recentlycreated/">Azure</a></div>
+                <div class="panel-body">
+                    <div id="resultado" style="overflow-wrap: break-word;">
+                                                Work Items
+                                                
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+</div>
+</body>
+<script>
+
+const TOKEN='2h2cnku6ziowlacqkfekxaiushjgirtmrvdqkqv34v2lzaa7u37q';
+
+$( document ).ready(function(){
+
+    $.ajax({
+        url: 'https://dev.azure.com/marianobruno/devopsproject/_apis/wit/workitems?ids=2&api-version=5.0',
+        dataType: 'json',
+        headers: {'Authorization': 'Basic ' + btoa("" + ":" + TOKEN)}
+        }).done(function( results ){$('#resultado').html( '<p>'+JSON.stringify(results)+'</p>');});
+});
+
+function obtenerQuery(query)
+{
+    $.ajax({
+        url: 'https://dev.azure.com/marianobruno/devopsproject/_apis/wit/queries/?'+query+'&api-version=5.0',
+        dataType: 'json',
+        headers: {'Authorization': 'Basic ' + btoa("" + ":" + TOKEN)}
+    }).done(function( results ){$('#resultado').html( '<p>'+JSON.stringify(results)+'</p>');});
+}
+
+function send() {
+    
+    var titulo=$("#titulo").val();
+    var descripcion=$("#descripcion").val();
+    var prioridad=$("#sel1").val();
+
+    if(titulo=="" ){
+        alert ("Completar titulo");
+        $("#titulo").focus(); 
+        return false;
+    }
+
+    if(descripcion=="" ){
+        alert ("Completar descripción");
+        $("#descripcion").focus();
+        return false;
+    }
+    
+    $('#resultado').html('Procesando..');
+
+    var patch = [
+                    {'op': 'add','path': '/fields/System.Title',                  'from': null,'value': titulo},
+                    {'op': 'add','path': '/fields/System.AreaPath',               'from': null,'value': 'DevopsProject\\Equipo EMI'},
+                    {'op': 'add','path': '/fields/Microsoft.VSTS.Common.Priority','from': null,'value': prioridad},
+                    {'op': 'add','path': '/fields/System.Description',            'from': null,'value': descripcion}
+                ]
+
+    $.ajax({
+        type: 'PATCH',
+        url: 'https://dev.azure.com/marianobruno/devopsproject/_apis/wit/workitems/$User Story?api-version=5.0',
+        data: JSON.stringify(patch),
+        processData: false,
+        contentType: 'application/json-patch+json',
+        headers: {'Authorization': 'Basic ' + btoa("" + ":" + TOKEN)},
+        success: function (data) {
+            $('#resultado').html("<a href="+data.url+">Task</a><br>"+ JSON.stringify(data));
+            $('#titulo').val("");
+            $('#titulo').focus();
+        },
+        error: function (data) {
+            $('#titulo').val("");
+            $('#titulo').focus();
+            $('#resultado').html( JSON.stringify(data));
+        },
+    });
+}
+
+</script>
+</html>
