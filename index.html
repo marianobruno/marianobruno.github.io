@@ -1,28 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
 <head>
+  <meta charset="UTF-8" />
+  <title>AI & Process Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050510;
+      --bg-card: #101020;
+      --bg-card-hover: #17172b;
+      --accent: #6a5cff;
+      --accent-soft: rgba(106, 92, 255, 0.3);
+      --text-main: #f7f7ff;
+      --text-sub: #a3a3c7;
+      --border-subtle: #25253a;
+    }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #181830 0, #050510 45%, #020208 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 32px 16px 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1120px;
+    }
+
+    header {
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(22, 22, 50, 0.9);
+      border: 1px solid var(--accent-soft);
+      font-size: 12px;
+      color: var(--text-sub);
+      width: fit-content;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(106, 92, 255, 0.9);
+    }
+
+    h1 {
+      font-size: clamp(28px, 3.4vw, 36px);
+      letter-spacing: 0.04em;
+    }
+
+    .subtitle {
+      max-width: 640px;
+      font-size: 14px;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+
+    .pill-row {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-sub);
+      background: rgba(8, 8, 22, 0.7);
+    }
+
+    .grid {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, rgba(7,7,20,0.98), rgba(14,14,34,0.98));
+      border-radius: 16px;
+      padding: 16px 16px 14px;
+      border: 1px solid var(--border-subtle);
+      box-shadow:
+        0 0 0 1px rgba(10,10,30,0.5),
+        0 16px 30px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top, rgba(106,92,255,0.14), transparent 55%);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(106, 92, 255, 0.6);
+      background: linear-gradient(145deg, rgba(10,10,26,0.98), rgba(18,18,40,0.98));
+      box-shadow:
+        0 0 0 1px rgba(106,92,255,0.25),
+        0 22px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(3, 180, 154, 0.12);
+      color: #6ff2de;
+      border: 1px solid rgba(3, 180, 154, 0.5);
+      align-self: flex-start;
+      white-space: nowrap;
+    }
+
+    .card-body {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(10, 10, 26, 0.9);
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    footer {
+      margin-top: 28px;
+      font-size: 11px;
+      color: var(--text-sub);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 10px;
+    }
+
+    footer span.highlight {
+      color: var(--accent);
+      opacity: 0.9;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 20px 12px 28px;
+      }
+      header {
+        margin-bottom: 24px;
+      }
+      .card {
+        padding: 14px 14px 12px;
+      }
+    }
+  </style>
 </head>
 <body>
-<nav>
-<h1>hola</hola></nav>
-<section style="background-image: url("https://images.unsplash.com/photo-1520789304460-c5885e7c675d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80");height:100vw">
-<div class="container">
+  <div class="shell">
+    <header>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        AI · Mejora Continua · Laboratorio de Procesos
+      </div>
+      <div>
+        <h1>AI Process Lab · Sandbox</h1>
+        <p class="subtitle">
+          Vidriera de proyectos experimentales orientados a automatizar decisiones, reducir fricción operativa
+          y acelerar la mejora continua usando inteligencia artificial aplicada.
+        </p>
+        <div class="pill-row">
+          <span class="pill">Prototipos</span>
+          <span class="pill">PoC · No productivo</span>
+          <span class="pill">IA aplicada a procesos</span>
+          <span class="pill">Data + Automatización</span>
+        </div>
+      </div>
+    </header>
 
-<div class="row">
+    <main>
+      <section class="grid">
+        <!-- Proyecto 1 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">Sentinel Flow · Monitor IA de Desvíos Operativos</h2>
+            <div class="card-tag">IA + Alertas</div>
+          </div>
+          <p class="card-body">
+            Motor que analiza eventos de operación en tiempo casi real, detecta anomalías en tiempos de ciclo y
+            deriva alertas inteligentes a los responsables antes de que el problema impacte en el cliente final.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">Anomalías</span>
+              <span class="chip">Operaciones</span>
+              <span class="chip">Alertas proactivas</span>
+            </div>
+            <span>Estado: Concepto</span>
+          </div>
+        </article>
 
-<div class="col-md-12 col-lg-6">
-hola
-</div>
-<div class="col-md-12 col-lg-6">
-hola
-</div>
+        <!-- Proyecto 2 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">Kairox · Asistente de Decisión para Backoffice</h2>
+            <div class="card-tag">Coprocessor IA</div>
+          </div>
+          <p class="card-body">
+            Asistente contextual que sugiere próximos pasos operativos en casos complejos, combinando reglas de negocio,
+            historiales similares y recomendaciones de IA para reducir tiempos de resolución y retrabajos.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">IA generativa</span>
+              <span class="chip">Backoffice</span>
+              <span class="chip">Next best action</span>
+            </div>
+            <span>Estado: PoC</span>
+          </div>
+        </article>
 
+        <!-- Proyecto 3 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">PulseBoard · Tablero de Mejora Continua</h2>
+            <div class="card-tag">Lean + Data</div>
+          </div>
+          <p class="card-body">
+            Panel que consolida métricas de flujo, capacidad y calidad; propone focos semanales de mejora y
+            simula impacto esperado de cada iniciativa antes de priorizarla.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">Métricas</span>
+              <span class="chip">Simulación</span>
+              <span class="chip">Prioridad</span>
+            </div>
+            <span>Estado: Prototipo</span>
+          </div>
+        </article>
 
-</div>
+        <!-- Proyecto 4 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">Workflow Lens · Mapa Vivo de Procesos</h2>
+            <div class="card-tag">Process Mining</div>
+          </div>
+          <p class="card-body">
+            Herramienta que reconstruye el flujo real de trabajo a partir de logs de sistemas, identifica cuellos de botella
+            y sugiere escenarios de rediseño basados en datos.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">Process mining</span>
+              <span class="chip">Cuellos de botella</span>
+              <span class="chip">Rediseño</span>
+            </div>
+            <span>Estado: Exploración</span>
+          </div>
+        </article>
 
-</div>
+        <!-- Proyecto 5 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">NeuraDocs · Clasificador Inteligente de Casos</h2>
+            <div class="card-tag">NLP</div>
+          </div>
+          <p class="card-body">
+            Clasificación automática de solicitudes y documentación entrante, asignando prioridad, tipología de proceso
+            y ruta de atención sugerida para reducir tiempos de triage manual.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">Texto</span>
+              <span class="chip">Ruteo</span>
+              <span class="chip">Prioridad</span>
+            </div>
+            <span>Estado: PoC</span>
+          </div>
+        </article>
 
-</section>
+        <!-- Proyecto 6 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">LoopSense · Motor de Lecciones Aprendidas</h2>
+            <div class="card-tag">Knowledge</div>
+          </div>
+          <p class="card-body">
+            Captura incidentes y mejoras implementadas, genera resúmenes reutilizables y sugiere buenas prácticas
+            cuando detecta situaciones similares en nuevos casos.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">Repositorio vivo</span>
+              <span class="chip">Lecciones</span>
+              <span class="chip">Reutilización</span>
+            </div>
+            <span>Estado: Diseño</span>
+          </div>
+        </article>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <!-- Proyecto 7 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">SigmaBot · Coach de Mejora Continua</h2>
+            <div class="card-tag">Lean Coach</div>
+          </div>
+          <p class="card-body">
+            Agente conversacional que guía a líderes y equipos en sesiones cortas de mejora, proponiendo preguntas,
+            hipótesis y pequeños experimentos basados en principios Lean y datos operativos.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">Chat IA</span>
+              <span class="chip">Lean</span>
+              <span class="chip">Experimentación</span>
+            </div>
+            <span>Estado: Sandbox</span>
+          </div>
+        </article>
+
+        <!-- Proyecto 8 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">CycleTune · Optimizador de Tiempos de Ciclo</h2>
+            <div class="card-tag">Optimización</div>
+          </div>
+          <p class="card-body">
+            Modelo que estima el tiempo de ciclo esperado por tipo de caso, identifica desvíos y propone ajustes
+            en criterios de asignación, lotes o reglas de negocio para estabilizar el flujo.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">Forecast</span>
+              <span class="chip">Takt time</span>
+              <span class="chip">Estabilidad</span>
+            </div>
+            <span>Estado: Investigación</span>
+          </div>
+        </article>
+
+        <!-- Proyecto 9 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">SignalCraft · Radar de Oportunidades de Mejora</h2>
+            <div class="card-tag">Insights</div>
+          </div>
+          <p class="card-body">
+            Consolida datos de reclamos, NPS, tiempos y esfuerzo operativo para surfacing automático de oportunidades
+            de mejora con mayor impacto potencial en experiencia y eficiencia.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">Customer voice</span>
+              <span class="chip">Prioridad</span>
+              <span class="chip">Impacto</span>
+            </div>
+            <span>Estado: Concepto</span>
+          </div>
+        </article>
+
+        <!-- Proyecto 10 -->
+        <article class="card">
+          <div class="card-header">
+            <h2 class="card-title">OpsCanvas · Gemelo Lógico de la Operación</h2>
+            <div class="card-tag">Digital Twin</div>
+          </div>
+          <p class="card-body">
+            Representación abstracta de la operación que permite probar escenarios “what if” (nuevos SLA, cambios
+            de reglas, automatización parcial) antes de modificar procesos reales.
+          </p>
+          <div class="meta-row">
+            <div class="chips">
+              <span class="chip">Simulación</span>
+              <span class="chip">Escenarios</span>
+              <span class="chip">Riesgo controlado</span>
+            </div>
+            <span>Estado: Laboratorio</span>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <span>Laboratorio de ideas · Solo uso experimental · Sin datos reales.</span>
+      <span>Versión <span class="highlight">Sandbox 0.1</span></span>
+    </footer>
+  </div>
 </body>
+</html>
+
